@@ -58,6 +58,7 @@ func New() *Log {
 	return &Log{
 		logger: log.New(os.Stderr, "", 0),
 		calldepth: 2,
+		level: errorLog,
 	}
 }
 
@@ -74,57 +75,56 @@ func (l *Log) SetLevel(level string) {
 }
 
 func (l *Log) Debug(v ...interface{}) {
-	l.output(l.calldepth, l.header(DEBUG, fmt.Sprint(v...)))
+	l.output(debugLog, l.header(DEBUG, fmt.Sprint(v...)))
 }
 
 func (l *Log) Debugf(format string, v ...interface{}) {
-	l.output(l.calldepth, l.header(DEBUG, fmt.Sprintf(format, v...)))
+	l.output(debugLog, l.header(DEBUG, fmt.Sprintf(format, v...)))
 }
 
 func (l *Log) Info(v ...interface{}) {
-	l.output(l.calldepth, l.header(INFO, fmt.Sprint(v...)))
+	l.output(infoLog, l.header(INFO, fmt.Sprint(v...)))
 }
 
 func (l *Log) Infof(format string, v ...interface{}) {
-	l.output(l.calldepth, l.header(INFO, fmt.Sprintf(format, v...)))
+	l.output(infoLog, l.header(INFO, fmt.Sprintf(format, v...)))
 }
 
 func (l *Log) Warning(v ...interface{}) {
-	l.output(l.calldepth, l.header(WARNING, fmt.Sprint(v...)))
+	l.output(warningLog, l.header(WARNING, fmt.Sprint(v...)))
 }
 
 func (l *Log) Warningf(format string, v ...interface{}) {
-	l.output(l.calldepth, l.header(WARNING, fmt.Sprintf(format, v...)))
+	l.output(warningLog, l.header(WARNING, fmt.Sprintf(format, v...)))
 }
 
 func (l *Log) Error(v ...interface{}) {
-	l.output(l.calldepth, l.header(ERROR, fmt.Sprint(v...)))
+	l.output(errorLog, l.header(ERROR, fmt.Sprint(v...)))
 }
 
 func (l *Log) Errorf(format string, v ...interface{}) {
-	l.output(l.calldepth, l.header(ERROR, fmt.Sprintf(format, v...)))
+	l.output(errorLog, l.header(ERROR, fmt.Sprintf(format, v...)))
 }
 
-
 func (l *Log) Fatal(v ...interface{}) {
-	l.output(l.calldepth, l.header(FATAL, fmt.Sprint(v...)))
+	l.output(fatalLog, l.header(FATAL, fmt.Sprint(v...)))
 	os.Exit(1)
 }
 
 func (l *Log) Fatalf(format string, v ...interface{}) {
-	l.output(l.calldepth, l.header(ERROR, fmt.Sprintf(format, v...)))
+	l.output(fatalLog, l.header(ERROR, fmt.Sprintf(format, v...)))
 	os.Exit(1)
 }
 
 func (l *Log) Panic(v ...interface{}) {
-	msg := l.header(ERROR, fmt.Sprint(v...))
-	l.output(l.calldepth, msg)
+	msg := l.header(PANIC, fmt.Sprint(v...))
+	l.output(panicLog, msg)
 	panic(msg)
 }
 
 func (l *Log) Panicf(format string, v ...interface{}) {
-	msg := l.header(ERROR, fmt.Sprintf(format, v...))
-	l.output(l.calldepth, msg)
+	msg := l.header(PANIC, fmt.Sprintf(format, v...))
+	l.output(panicLog, msg)
 	panic(msg)
 }
 
