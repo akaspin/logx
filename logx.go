@@ -14,13 +14,15 @@ import (
 )
 
 const (
-	debugLog = 0
-	infoLog = 1
-	warningLog = 2
-	errorLog = 3
-	fatalLog = 4
-	panicLog = 5
+	traceLog = 0
+	debugLog = 1
+	infoLog = 2
+	warningLog = 3
+	errorLog = 4
+	fatalLog = 5
+	panicLog = 6
 
+	TRACE = "TRACE"
 	DEBUG = "DEBUG"
 	INFO = "INFO"
 	WARNING = "WARNING"
@@ -31,6 +33,7 @@ const (
 
 var (
 	logLevels = []string{
+		"TRACE",
 		"DEBUG",
 		"INFO",
 		"WARNING",
@@ -62,7 +65,7 @@ func New() *Log {
 	}
 }
 
-// Set logging level: DEBUG, INFO, WARNING, ERROR, FATAL, PANIC
+// Set logging level: TRACE, DEBUG, INFO, WARNING, ERROR, FATAL, PANIC
 func (l *Log) SetLevel(level string) {
 	level = strings.ToUpper(level)
 	for i, st := range logLevels {
@@ -72,6 +75,14 @@ func (l *Log) SetLevel(level string) {
 		}
 	}
 	l.level = errorLog
+}
+
+func (l *Log) Trace(v ...interface{}) {
+	l.output(traceLog, l.header(TRACE, fmt.Sprint(v...)))
+}
+
+func (l *Log) Tracef(format string, v ...interface{}) {
+	l.output(traceLog, l.header(TRACE, fmt.Sprintf(format, v...)))
 }
 
 func (l *Log) Debug(v ...interface{}) {
@@ -128,6 +139,71 @@ func (l *Log) Panicf(format string, v ...interface{}) {
 	panic(msg)
 }
 
+// Acts as Error() but only if err argument is not nil
+func (l *Log) ErrError(err error, v ...interface{}) {
+	if err != nil {
+		l.output(errorLog, l.header(ERROR, fmt.Sprint(prepend(err, v)...)))
+	}
+}
+
+// Acts as Errorf(format, err, v...) but only if err is not nil
+func (l *Log) ErrErrorf(err error, format string, v ...interface{}) {
+	if err != nil {
+		l.output(errorLog, l.header(ERROR, fmt.Sprintf(format,
+			prepend(err, v)...)))
+	}
+}
+
+// Acts as Warning() but only if err argument is not nil
+func (l *Log) ErrWarning(err error, v ...interface{}) {
+	if err != nil {
+		l.output(warningLog, l.header(WARNING, fmt.Sprint(prepend(err, v)...)))
+	}
+}
+
+// Acts as Warningf(format, err, v...) but only if err is not nil
+func (l *Log) ErrWarningf(err error, format string, v ...interface{}) {
+	if err != nil {
+		l.output(warningLog, l.header(WARNING,
+			fmt.Sprintf(format, prepend(err, v)...)))
+	}
+}
+
+// Acts as Fatal() but only if err argument is not nil
+func (l *Log) ErrFatal(err error, v ...interface{}) {
+	if err != nil {
+		l.output(fatalLog, l.header(FATAL, fmt.Sprint(prepend(err, v)...)))
+		os.Exit(1)
+	}
+}
+
+// Acts as Fatalf(format, err, v...) but only if err is not nil
+func (l *Log) ErrFatalf(err error, format string, v ...interface{}) {
+	if err != nil {
+		l.output(fatalLog, l.header(ERROR,
+			fmt.Sprintf(format, prepend(err, v)...)))
+		os.Exit(1)
+	}
+}
+
+// Acts as Panic() but only if err argument is not nil
+func (l *Log) ErrPanic(err error, v ...interface{}) {
+	if err != nil {
+		msg := l.header(PANIC, fmt.Sprint(prepend(err, v)...))
+		l.output(panicLog, msg)
+		panic(msg)
+	}
+}
+
+// Acts as Panicf(format, err, v...) but only if err is not nil
+func (l *Log) ErrPanicf(err error, format string, v ...interface{}) {
+	if err != nil {
+		msg := l.header(PANIC, fmt.Sprintf(format, prepend(err, v)...))
+		l.output(panicLog, msg)
+		panic(msg)
+	}
+}
+
 func (l *Log) output(lvl int, line string) {
 	if lvl >= l.level {
 		l.logger.Output(l.calldepth, line)
@@ -153,6 +229,14 @@ func (l *Log) header(lvl, msg string) string {
 
 func SetLevel(level string) {
 	std.SetLevel(level)
+}
+
+func Trace(v ...interface{}) {
+	std.Trace(v...)
+}
+
+func Tracef(format string, v ...interface{}) {
+	std.Tracef(format, v...)
 }
 
 func Debug(v ...interface{}) {
@@ -201,4 +285,40 @@ func Panic(v ...interface{}) {
 
 func Panicf(format string, v ...interface{}) {
 	std.Panicf(format, v...)
+}
+
+func ErrWarning(err error, v ...interface{}) {
+	std.ErrWarning(err, v...)
+}
+
+func ErrWarningf(err error, format string, v ...interface{}) {
+	std.ErrWarningf(err, format, v...)
+}
+
+func ErrError(err error, v ...interface{}) {
+	std.ErrError(err, v...)
+}
+
+func ErrErrorf(err error, format string, v ...interface{}) {
+	std.ErrErrorf(err, format, v...)
+}
+
+func ErrFatal(err error, v ...interface{}) {
+	std.ErrFatal(err, v...)
+}
+
+func ErrFatalf(err error, format string, v ...interface{}) {
+	std.ErrFatalf(err, format, v...)
+}
+
+func ErrPanic(err error, v ...interface{}) {
+	std.ErrPanic(err, v...)
+}
+
+func ErrPanicf(err error, format string, v ...interface{}) {
+	std.ErrPanicf(err, format, v...)
+}
+
+func prepend(head interface{}, tail []interface{}) []interface{} {
+	return append([]interface{}{head}, tail...)
 }
