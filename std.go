@@ -66,20 +66,20 @@ func Panicf(format string, v ...interface{}) {
 	std.Panicf(format, v...)
 }
 
-func ErrWarning(err interface{}, v ...interface{}) {
-	std.ErrWarning(err, v...)
+func OnWarning(err interface{}, v ...interface{}) error {
+	return std.OnWarning(err, v...)
 }
 
-func ErrWarningf(err interface{}, format string, v ...interface{}) {
-	std.ErrWarningf(err, format, v...)
+func OnWarningf(err interface{}, format string, v ...interface{}) error {
+	return std.OnWarningf(err, format, v...)
 }
 
-func ErrError(err interface{}, v ...interface{}) {
-	std.ErrError(err, v...)
+func OnError(err interface{}, v ...interface{}) error {
+	return std.OnError(err, v...)
 }
 
-func ErrErrorf(err interface{}, format string, v ...interface{}) {
-	std.ErrErrorf(err, format, v...)
+func OnErrorf(err interface{}, format string, v ...interface{}) error {
+	return std.OnErrorf(err, format, v...)
 }
 
 func ErrFatal(err interface{}, v ...interface{}) {
@@ -98,6 +98,3 @@ func ErrPanicf(err interface{}, format string, v ...interface{}) {
 	std.ErrPanicf(err, format, v...)
 }
 
-func prepend(head interface{}, tail []interface{}) []interface{} {
-	return append([]interface{}{head}, tail...)
-}

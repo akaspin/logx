@@ -5,30 +5,30 @@ Simple wrapper around log.
 package logx
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"strings"
-	"runtime"
 	"path/filepath"
-	"fmt"
+	"runtime"
+	"strings"
 )
 
 const (
-	traceLog = 0
-	debugLog = 1
-	infoLog = 2
+	traceLog   = 0
+	debugLog   = 1
+	infoLog    = 2
 	warningLog = 3
-	errorLog = 4
-	fatalLog = 5
-	panicLog = 6
+	errorLog   = 4
+	fatalLog   = 5
+	panicLog   = 6
 
-	TRACE = "TRACE"
-	DEBUG = "DEBUG"
-	INFO = "INFO"
+	TRACE   = "TRACE"
+	DEBUG   = "DEBUG"
+	INFO    = "INFO"
 	WARNING = "WARNING"
-	ERROR = "ERROR"
-	FATAL = "FATAL"
-	PANIC = "PANIC"
+	ERROR   = "ERROR"
+	FATAL   = "FATAL"
+	PANIC   = "PANIC"
 )
 
 var (
@@ -41,23 +41,22 @@ var (
 		"FATAL",
 		"PANIC",
 	}
-
 )
 
 // Logger
-type Log struct  {
+type Log struct {
 	logger *log.Logger
 
-	level int
+	level     int
 	calldepth int
 }
 
 // Get new logger
 func New() *Log {
 	return &Log{
-		logger: log.New(os.Stderr, "", 0),
+		logger:    log.New(os.Stderr, "", 0),
 		calldepth: 2,
-		level: errorLog,
+		level:     errorLog,
 	}
 }
 
@@ -136,31 +135,36 @@ func (l *Log) Panicf(format string, v ...interface{}) {
 }
 
 // Acts as Warning(err, v...) but only if err argument is not nil
-func (l *Log) ErrWarning(err interface{}, v ...interface{}) {
+// OnWarning always returns <nil>. Use this for reports.
+func (l *Log) OnWarning(err interface{}, v ...interface{}) error {
 	if err != nil {
 		l.output(warningLog, l.header(WARNING, fmt.Sprint(prepend(err, v)...)))
 	}
+	return nil
 }
 
 // Acts as Warningf(format, v...) but only if err is not nil
-func (l *Log) ErrWarningf(err interface{}, format string, v ...interface{}) {
+func (l *Log) OnWarningf(err interface{}, format string, v ...interface{}) error {
 	if err != nil {
 		l.output(warningLog, l.header(WARNING, fmt.Sprintf(format, v...)))
 	}
+	return nil
 }
 
 // Acts as Error(err, v...) but only if err argument is not nil
-func (l *Log) ErrError(err interface{}, v ...interface{}) {
+func (l *Log) OnError(err interface{}, v ...interface{}) error {
 	if err != nil {
 		l.output(errorLog, l.header(ERROR, fmt.Sprint(prepend(err, v)...)))
 	}
+	return nil
 }
 
 // Acts as Errorf(format, v...) but only if err is not nil
-func (l *Log) ErrErrorf(err interface{}, format string, v ...interface{}) {
+func (l *Log) OnErrorf(err interface{}, format string, v ...interface{}) error {
 	if err != nil {
 		l.output(errorLog, l.header(ERROR, fmt.Sprintf(format, v...)))
 	}
+	return nil
 }
 
 // Acts as Fatal(err, v...) but only if err argument is not nil
@@ -220,3 +224,6 @@ func (l *Log) header(lvl, msg string) string {
 	return fmt.Sprintf("%s %s:%d: %s", lvl, file, line, msg)
 }
 
+func prepend(head interface{}, tail []interface{}) []interface{} {
+	return append([]interface{}{head}, tail...)
+}
