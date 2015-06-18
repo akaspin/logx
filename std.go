@@ -82,19 +82,19 @@ func OnErrorf(err interface{}, format string, v ...interface{}) error {
 	return std.OnErrorf(err, format, v...)
 }
 
-func ErrFatal(err interface{}, v ...interface{}) {
-	std.ErrFatal(err, v...)
+func OnFatal(err interface{}, v ...interface{}) {
+	std.OnFatal(err, v...)
 }
 
-func ErrFatalf(err interface{}, format string, v ...interface{}) {
-	std.ErrFatalf(err, format, v...)
+func OnFatalf(err interface{}, format string, v ...interface{}) {
+	std.OnFatalf(err, format, v...)
 }
 
-func ErrPanic(err interface{}, v ...interface{}) {
-	std.ErrPanic(err, v...)
+func OnPanic(err interface{}, v ...interface{}) {
+	std.OnPanic(err, v...)
 }
 
-func ErrPanicf(err interface{}, format string, v ...interface{}) {
-	std.ErrPanicf(err, format, v...)
+func OnPanicf(err interface{}, format string, v ...interface{}) {
+	std.OnPanicf(err, format, v...)
 }
 

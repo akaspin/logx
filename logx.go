@@ -168,7 +168,7 @@ func (l *Log) OnErrorf(err interface{}, format string, v ...interface{}) error {
 }
 
 // Acts as Fatal(err, v...) but only if err argument is not nil
-func (l *Log) ErrFatal(err interface{}, v ...interface{}) {
+func (l *Log) OnFatal(err interface{}, v ...interface{}) {
 	if err != nil {
 		l.output(fatalLog, l.header(FATAL, fmt.Sprint(prepend(err, v)...)))
 		os.Exit(1)
@@ -176,7 +176,7 @@ func (l *Log) ErrFatal(err interface{}, v ...interface{}) {
 }
 
 // Acts as Fatalf(format, err, v...) but only if err is not nil
-func (l *Log) ErrFatalf(err interface{}, format string, v ...interface{}) {
+func (l *Log) OnFatalf(err interface{}, format string, v ...interface{}) {
 	if err != nil {
 		l.output(fatalLog, l.header(ERROR, fmt.Sprintf(format, v...)))
 		os.Exit(1)
@@ -184,7 +184,7 @@ func (l *Log) ErrFatalf(err interface{}, format string, v ...interface{}) {
 }
 
 // Acts as Panic() but only if err argument is not nil
-func (l *Log) ErrPanic(err interface{}, v ...interface{}) {
+func (l *Log) OnPanic(err interface{}, v ...interface{}) {
 	if err != nil {
 		msg := l.header(PANIC, fmt.Sprint(prepend(err, v)...))
 		l.output(panicLog, msg)
@@ -193,7 +193,7 @@ func (l *Log) ErrPanic(err interface{}, v ...interface{}) {
 }
 
 // Acts as Panicf(format, err, v...) but only if err is not nil
-func (l *Log) ErrPanicf(err interface{}, format string, v ...interface{}) {
+func (l *Log) OnPanicf(err interface{}, format string, v ...interface{}) {
 	if err != nil {
 		msg := l.header(PANIC, fmt.Sprintf(format, v...))
 		l.output(panicLog, msg)
