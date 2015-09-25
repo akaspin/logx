@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"io"
 )
 
 const (
@@ -70,6 +71,11 @@ func (l *Log) SetLevel(level string) {
 		}
 	}
 	l.level = errorLog
+}
+
+// Set output
+func (l *Log) SetOutput(w io.Writer) {
+	l.logger.SetOutput(w)
 }
 
 func (l *Log) Trace(v ...interface{}) {

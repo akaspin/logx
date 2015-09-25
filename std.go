@@ -1,4 +1,5 @@
 package logx
+import "io"
 
 var std *Log = New()
 
@@ -8,6 +9,10 @@ func init() {
 
 func SetLevel(level string) {
 	std.SetLevel(level)
+}
+
+func SetOutput(w io.Writer) {
+	std.SetOutput(w)
 }
 
 func Trace(v ...interface{}) {
