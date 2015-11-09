@@ -19,6 +19,10 @@ func SetPrefix(prefix string)  {
 	std.SetPrefix(prefix)
 }
 
+func SetOptions(flag int) {
+	std.SetOptions(flag)
+}
+
 func Trace(v ...interface{}) {
 	std.Trace(v...)
 }

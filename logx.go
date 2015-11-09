@@ -48,6 +48,7 @@ type Logger interface {
 	SetLevel(level string)
 	SetOutput(w io.Writer)
 	SetPrefix(prefix string)
+	SetOptions(flag int)
 
 	Trace(v ...interface{})
 	Tracef(format string, v ...interface{})
@@ -109,6 +110,10 @@ func (l *Log) SetOutput(w io.Writer) {
 
 func (l *Log) SetPrefix(prefix string) {
 	l.logger.SetPrefix(prefix)
+}
+
+func (l *Log) SetOptions(flag int)  {
+	l.logger.SetFlags(flag)
 }
 
 func (l *Log) Trace(v ...interface{}) {
