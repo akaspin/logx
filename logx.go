@@ -44,6 +44,35 @@ var (
 	}
 )
 
+type Logger interface {
+	SetLevel(level string)
+	SetOutput(w io.Writer)
+	SetPrefix(prefix string)
+
+	Trace(v ...interface{})
+	Tracef(format string, v ...interface{})
+	Debug(v ...interface{})
+	Debugf(format string, v ...interface{})
+	Info(v ...interface{})
+	Infof(format string, v ...interface{})
+	Warning(v ...interface{})
+	Warningf(format string, v ...interface{})
+	Error(v ...interface{})
+	Errorf(format string, v ...interface{})
+	Fatal(v ...interface{})
+	Fatalf(format string, v ...interface{})
+	Panic(v ...interface{})
+	Panicf(format string, v ...interface{})
+
+	OnWarning(err interface{}, v ...interface{}) error
+	OnWarningf(err interface{}, format string, v ...interface{})
+	OnError(err interface{}, v ...interface{}) error
+	OnErrorf(err interface{}, format string, v ...interface{}) error
+	OnFatal(err interface{}, v ...interface{})
+	OnFatalf(err interface{}, format string, v ...interface{})
+	OnPanic(err interface{}, v ...interface{})
+}
+
 // Logger
 type Log struct {
 	logger *log.Logger
@@ -76,6 +105,10 @@ func (l *Log) SetLevel(level string) {
 // Set output
 func (l *Log) SetOutput(w io.Writer) {
 	l.logger.SetOutput(w)
+}
+
+func (l *Log) SetPrefix(prefix string) {
+	l.logger.SetPrefix(prefix)
 }
 
 func (l *Log) Trace(v ...interface{}) {

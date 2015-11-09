@@ -15,6 +15,10 @@ func SetOutput(w io.Writer) {
 	std.SetOutput(w)
 }
 
+func SetPrefix(prefix string)  {
+	std.SetPrefix(prefix)
+}
+
 func Trace(v ...interface{}) {
 	std.Trace(v...)
 }
