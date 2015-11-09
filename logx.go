@@ -65,7 +65,7 @@ type Logger interface {
 	Panicf(format string, v ...interface{})
 
 	OnWarning(err interface{}, v ...interface{}) error
-	OnWarningf(err interface{}, format string, v ...interface{})
+	OnWarningf(err interface{}, format string, v ...interface{}) error
 	OnError(err interface{}, v ...interface{}) error
 	OnErrorf(err interface{}, format string, v ...interface{}) error
 	OnFatal(err interface{}, v ...interface{})
