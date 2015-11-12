@@ -45,11 +45,6 @@ var (
 )
 
 type Logger interface {
-	SetLevel(level string)
-	SetOutput(w io.Writer)
-	SetPrefix(prefix string)
-	SetOptions(flag int)
-
 	Trace(v ...interface{})
 	Tracef(format string, v ...interface{})
 	Debug(v ...interface{})
