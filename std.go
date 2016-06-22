@@ -1,113 +1,80 @@
 package logx
-import "io"
 
-var std *Log = New()
+import (
+	"os"
+	"io"
+	"fmt"
+)
 
-func init() {
-	std.calldepth = 3
+var std = NewLog(os.Stderr, "", LstdFlags)
+
+// GetLog returns new independent log instance based
+// on standard Log parameters.
+func GetLog(prefix string) *Log {
+	return std.GetLog(prefix)
 }
 
-func SetLevel(level string) {
-	std.SetLevel(level)
+// SetOutput thread-safely sets standard Log output.
+func SetOutput(output io.Writer) {
+	std.SetOutput(output)
 }
 
-func SetOutput(w io.Writer) {
-	std.SetOutput(w)
+// SetFlags thread-safely sets standard log flags.
+func SetFlags(flags int) {
+	std.SetFlags(flags)
 }
 
-func SetPrefix(prefix string)  {
-	std.SetPrefix(prefix)
+// Flags returns standard log flags.
+func Flags() int {
+	return std.Flags()
 }
 
-func SetOptions(flag int) {
-	std.SetOptions(flag)
+// Print is synonym to standard Log Info used for compatibility.
+func Print(v ...interface{}) {
+	std.output(infoBytes, []byte(fmt.Sprint(v...)))
 }
 
-func Trace(v ...interface{}) {
-	std.Trace(v...)
+// Printf is synonym to standard Log Infof used for compatibility.
+func Printf(format string, v ...interface{}) {
+	std.output(infoBytes, []byte(fmt.Sprintf(format, v...)))
 }
 
-func Tracef(format string, v ...interface{}) {
-	std.Tracef(format, v...)
-}
-
-func Debug(v ...interface{}) {
-	std.Debug(v...)
-}
-
-func Debugf(format string, v ...interface{}) {
-	std.Debugf(format, v...)
-}
-
+// Info logs value with INFO severity level to standard Log.
 func Info(v ...interface{}) {
-	std.Info(v...)
+	std.output(infoBytes, []byte(fmt.Sprint(v...)))
 }
 
+// Infof logs formatted value with INFO severity level to standard Log.
 func Infof(format string, v ...interface{}) {
-	std.Infof(format, v...)
+	std.output(infoBytes, []byte(fmt.Sprintf(format, v...)))
 }
 
+// Warning logs value with WARNING severity level to standard Log.
 func Warning(v ...interface{}) {
-	std.Warning(v...)
+	std.output(warningBytes, []byte(fmt.Sprint(v...)))
 }
 
+// Warningf logs formatted value with WARNING severity level to standard Log.
 func Warningf(format string, v ...interface{}) {
-	std.Warningf(format, v...)
+	std.output(warningBytes, []byte(fmt.Sprintf(format, v...)))
 }
 
+// Error logs value with ERROR severity level to standard Log.
 func Error(v ...interface{}) {
-	std.Error(v...)
+	std.output(errorBytes, []byte(fmt.Sprint(v...)))
 }
 
+// Errorf logs formatted value with ERROR severity level to standard Log.
 func Errorf(format string, v ...interface{}) {
-	std.Errorf(format, v...)
+	std.output(errorBytes, []byte(fmt.Sprintf(format, v...)))
 }
 
-func Fatal(v ...interface{}) {
-	std.Fatal(v...)
+// Critical logs value with CRITICAL severity level to standard Log.
+func Critical(v ...interface{}) {
+	std.output(criticalBytes, []byte(fmt.Sprint(v...)))
 }
 
-func Fatalf(format string, v ...interface{}) {
-	std.Fatalf(format, v...)
+// Criticalf logs formatted value with CRITICAL severity level to standard Log.
+func Criticalf(format string, v ...interface{}) {
+	std.output(criticalBytes, []byte(fmt.Sprintf(format, v...)))
 }
-
-func Panic(v ...interface{}) {
-	std.Panic(v...)
-}
-
-func Panicf(format string, v ...interface{}) {
-	std.Panicf(format, v...)
-}
-
-func OnWarning(err interface{}, v ...interface{}) error {
-	return std.OnWarning(err, v...)
-}
-
-func OnWarningf(err interface{}, format string, v ...interface{}) error {
-	return std.OnWarningf(err, format, v...)
-}
-
-func OnError(err interface{}, v ...interface{}) error {
-	return std.OnError(err, v...)
-}
-
-func OnErrorf(err interface{}, format string, v ...interface{}) error {
-	return std.OnErrorf(err, format, v...)
-}
-
-func OnFatal(err interface{}, v ...interface{}) {
-	std.OnFatal(err, v...)
-}
-
-func OnFatalf(err interface{}, format string, v ...interface{}) {
-	std.OnFatalf(err, format, v...)
-}
-
-func OnPanic(err interface{}, v ...interface{}) {
-	std.OnPanic(err, v...)
-}
-
-func OnPanicf(err interface{}, format string, v ...interface{}) {
-	std.OnPanicf(err, format, v...)
-}
-
