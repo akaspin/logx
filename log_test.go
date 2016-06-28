@@ -57,4 +57,3 @@ func TestLog_GetLog(t *testing.T) {
 	assert.Contains(t, w.String(), "WARNING log_test.go:")
 	assert.Contains(t, w.String(), "INFO second log_test.go:")
 }
-
