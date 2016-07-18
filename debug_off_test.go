@@ -11,7 +11,7 @@ import (
 
 func TestStandaloneLogger_Debug(t *testing.T) {
 	w := &bytes.Buffer{}
-	l := logx.NewLog(w, "", 0)
+	l := logx.NewLog(logx.NewSimpleAppender(w, 0), "")
 	l.Debug("test")
 	assert.Equal(t, "", w.String())
 }

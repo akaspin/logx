@@ -2,18 +2,15 @@ package logx
 
 import (
 	"sync/atomic"
-	"io"
 	"unsafe"
 	"fmt"
-	"time"
-	"runtime"
 )
 
 const (
-	INFO     = "INFO"
-	WARNING  = "WARNING"
-	ERROR    = "ERROR"
-	CRITICAL = "CRITICAL"
+	lInfo = "INFO"
+	lWarning = "WARNING"
+	lError = "ERROR"
+	lCritical = "CRITICAL"
 
 	// Ldate adds the date in the local time zone: 2009/01/23
 	Ldate = 1 << iota
@@ -39,59 +36,35 @@ const (
 	LstdFlags = Lshortfile
 )
 
-var (
-	infoBytes = []byte(INFO)
-	warningBytes = []byte(WARNING)
-	errorBytes = []byte(ERROR)
-	criticalBytes = []byte(CRITICAL)
-)
-
 type Log struct {
-	outputPtr *unsafe.Pointer
-	flagsPtr  *int32
-	prefix   []byte
+	prefix   string
 
+	appenderPtr *unsafe.Pointer
 	callDepth int
 }
 
 // NewLog returns new log. Output Writer must be thread safe.
-func NewLog(output io.Writer, prefix string, flags int) (res *Log) {
+func NewLog(appender Appender, prefix string) (res *Log) {
 	res = &Log{
-		outputPtr: new(unsafe.Pointer),
-		flagsPtr: new(int32),
+		prefix: prefix,
+		appenderPtr: new(unsafe.Pointer),
 		callDepth: 2,
 	}
-	if prefix != "" {
-		res.prefix = []byte(prefix)
-	}
-	res.SetFlags(flags)
-	res.SetOutput(output)
+	res.SetAppender(appender)
 	return
 }
 
-// GetLog returns new independent log instance based on Log parameters.
+// GetLog returns new independent log instance with given prefix.
 func (l *Log) GetLog(prefix string) (res *Log) {
 	res = NewLog(
-		(*(*io.Writer)(atomic.LoadPointer(l.outputPtr))),
-		prefix,
-		l.Flags())
+		(*(*Appender)(atomic.LoadPointer(l.appenderPtr))),
+		prefix)
 	return
 }
 
-// SetOutput thread-safely sets log output.
-func (l *Log) SetOutput(output io.Writer) {
-	atomic.StorePointer(l.outputPtr, (unsafe.Pointer)(&output))
-}
-
-// SetFlags thread-safely sets log flags.
-func (l *Log) SetFlags(flags int) {
-	atomic.StoreInt32(l.flagsPtr, int32(flags))
-}
-
-// Flags returns log flags.
-func (l *Log) Flags() (res int) {
-	res = int(atomic.LoadInt32(l.flagsPtr))
-	return
+// SetAppender sets appender for Log instance.
+func (l *Log) SetAppender(appender Appender) {
+	atomic.StorePointer(l.appenderPtr, (unsafe.Pointer)(&appender))
 }
 
 // Prefix returns log prefix.
@@ -102,146 +75,55 @@ func (l *Log) Prefix() (res string) {
 
 // Print is synonym to Info used for compatibility.
 func (l *Log) Print(v ...interface{}) {
-	l.output(infoBytes, []byte(fmt.Sprint(v...)))
+	l.append(lInfo, fmt.Sprint(v...))
 }
 
 // Printf is synonym to Infof used for compatibility.
 func (l *Log) Printf(format string, v ...interface{}) {
-	l.output(infoBytes, []byte(fmt.Sprintf(format, v...)))
+	l.append(lInfo, fmt.Sprintf(format, v...))
 }
 
 // Info logs value with INFO severity level.
 func (l *Log) Info(v ...interface{}) {
-	l.output(infoBytes, []byte(fmt.Sprint(v...)))
+	l.append(lInfo, fmt.Sprint(v...))
 }
 
 // Infof logs formatted value with INFO severity level.
 func (l *Log) Infof(format string, v ...interface{}) {
-	l.output(infoBytes, []byte(fmt.Sprintf(format, v...)))
+	l.append(lInfo, fmt.Sprintf(format, v...))
 }
 
 // Warning logs value with WARNING severity level.
 func (l *Log) Warning(v ...interface{}) {
-	l.output(warningBytes, []byte(fmt.Sprint(v...)))
+	l.append(lWarning, fmt.Sprint(v...))
 }
 
 // Warningf logs formatted value with WARNING severity level.
 func (l *Log) Warningf(format string, v ...interface{}) {
-	l.output(warningBytes, []byte(fmt.Sprintf(format, v...)))
+	l.append(lWarning, fmt.Sprintf(format, v...))
 }
 
 // Error logs value with ERROR severity level.
 func (l *Log) Error(v ...interface{}) {
-	l.output(errorBytes, []byte(fmt.Sprint(v...)))
+	l.append(lError, fmt.Sprint(v...))
 }
 
 // Errorf logs formatted value with ERROR severity level.
 func (l *Log) Errorf(format string, v ...interface{}) {
-	l.output(errorBytes, []byte(fmt.Sprintf(format, v...)))
+	l.append(lError, fmt.Sprintf(format, v...))
 }
 
 // Critical logs value with CRITICAL severity level.
 func (l *Log) Critical(v ...interface{}) {
-		l.output(criticalBytes, []byte(fmt.Sprint(v...)))
+	l.append(lCritical, fmt.Sprint(v...))
 }
 
 // Criticalf logs formatted value with CRITICAL severity level.
 func (l *Log) Criticalf(format string, v ...interface{}) {
-		l.output(criticalBytes, []byte(fmt.Sprintf(format, v...)))
+	l.append(lWarning, fmt.Sprintf(format, v...))
 }
 
-func (l *Log) output(level, line []byte) {
-	var buf []byte
-	flags := int(atomic.LoadInt32(l.flagsPtr))
-
-	// time
-	if flags&(Ldate|Ltime|Lmicroseconds|LUTC) != 0 {
-		t := time.Now()
-		if flags&LUTC != 0 {
-			t = t.UTC()
-		}
-		if flags&(Ldate|Ltime|Lmicroseconds) != 0 {
-			if flags&Ldate != 0 {
-				year, month, day := t.Date()
-				itoa(&buf, year, 4)
-				buf = append(buf, '/')
-				itoa(&buf, int(month), 2)
-				buf = append(buf, '/')
-				itoa(&buf, day, 2)
-				buf = append(buf, ' ')
-			}
-			if flags&(Ltime|Lmicroseconds) != 0 {
-				hour, min, sec := t.Clock()
-				itoa(&buf, hour, 2)
-				buf = append(buf, ':')
-				itoa(&buf, min, 2)
-				buf = append(buf, ':')
-				itoa(&buf, sec, 2)
-				if flags&Lmicroseconds != 0 {
-					buf = append(buf, '.')
-					itoa(&buf, t.Nanosecond()/1e3, 6)
-				}
-				buf = append(buf, ' ')
-			}
-		}
-	}
-
-	// level
-	buf = append(buf, level...)
-	buf = append(buf, ' ')
-
-	// prefix
-	if l.prefix != nil {
-		buf = append(buf, l.prefix...)
-		buf = append(buf, ' ')
-	}
-
-	// file
-	if flags&(Lshortfile|Llongfile) != 0 {
-		_, file, lineNo, ok := runtime.Caller(l.callDepth)
-		if !ok {
-			file = "???"
-			lineNo = 0
-		}
-		if flags&Lshortfile != 0 {
-			short := file
-			for i := len(file) - 1; i > 0; i-- {
-				if file[i] == '/' {
-					short = file[i+1:]
-					break
-				}
-			}
-			file = short
-		}
-		buf = append(buf, file...)
-		buf = append(buf, ':')
-		itoa(&buf, lineNo, -1)
-		buf = append(buf, ' ')
-	}
-
-	buf = append(buf, line...)
-
-	if len(line) == 0 || line[len(line)-1] != '\n' {
-		buf = append(buf, '\n')
-	}
-
-	(*(*io.Writer)(atomic.LoadPointer(l.outputPtr))).Write(buf)
-}
-
-// Cheap integer to fixed-width decimal ASCII.
-// Give a negative width to avoid zero-padding.
-func itoa(buf *[]byte, i int, wid int) {
-	// Assemble decimal in reverse order.
-	var b [20]byte
-	bp := len(b) - 1
-	for i >= 10 || wid > 1 {
-		wid--
-		q := i / 10
-		b[bp] = byte('0' + i - q*10)
-		bp--
-		i = q
-	}
-	// i < 10
-	b[bp] = byte('0' + i)
-	*buf = append(*buf, b[bp:]...)
+func (l *Log) append(level, line string) {
+	(*(*Appender)(atomic.LoadPointer(l.appenderPtr))).Append(
+		level, l.prefix, line)
 }

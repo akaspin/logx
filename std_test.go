@@ -9,14 +9,14 @@ import (
 
 func TestStdSetOutput(t *testing.T) {
 	w := &bytes.Buffer{}
-	logx.SetOutput(w)
+	logx.SetAppender(logx.NewSimpleAppender(w, logx.Lshortfile))
 	logx.Info("test")
 	assert.Contains(t, w.String(), "INFO std_test.go")
 }
 
 func TestStdGetLogger(t *testing.T) {
 	w := &bytes.Buffer{}
-	logx.SetOutput(w)
+	logx.SetAppender(logx.NewSimpleAppender(w, logx.Lshortfile))
 	logx.Info("test")
 
 	l2 := logx.GetLog("second")
