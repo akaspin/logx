@@ -120,7 +120,7 @@ func (l *Log) Critical(v ...interface{}) {
 
 // Criticalf logs formatted value with CRITICAL severity level.
 func (l *Log) Criticalf(format string, v ...interface{}) {
-	l.append(lWarning, fmt.Sprintf(format, v...))
+	l.append(lCritical, fmt.Sprintf(format, v...))
 }
 
 func (l *Log) append(level, line string) {

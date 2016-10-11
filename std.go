@@ -64,5 +64,5 @@ func Critical(v ...interface{}) {
 
 // Criticalf logs formatted value with CRITICAL severity level to standard Log.
 func Criticalf(format string, v ...interface{}) {
-	std.append(lError, fmt.Sprintf(format, v...))
+	std.append(lCritical, fmt.Sprintf(format, v...))
 }
