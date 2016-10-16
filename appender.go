@@ -9,7 +9,7 @@ import (
 type Appender interface {
 
 	// Append log line
-	Append(level, prefix, line string)
+	Append(level, prefix, line string, tags ...string)
 }
 
 type SimpleAppender struct {
@@ -24,7 +24,7 @@ func NewSimpleAppender(output io.Writer, flags int) *SimpleAppender {
 	}
 }
 
-func (a *SimpleAppender) Append(level, prefix, line string) {
+func (a *SimpleAppender) Append(level, prefix, line string, tags ...string) {
 	var buf []byte
 
 	// time
@@ -67,6 +67,19 @@ func (a *SimpleAppender) Append(level, prefix, line string) {
 	if prefix != "" {
 		buf = append(buf, []byte(prefix)...)
 		buf = append(buf, ' ')
+	}
+
+	// tags
+	ltags := len(tags)
+	if ltags > 0 {
+		buf = append(buf, '[')
+		for i, tag := range tags {
+			buf = append(buf, tag...)
+			if i < ltags-1 {
+				buf = append(buf, ' ')
+			}
+		}
+		buf = append(buf, "] "...)
 	}
 
 	// file

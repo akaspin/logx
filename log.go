@@ -38,14 +38,16 @@ const (
 
 type Log struct {
 	prefix   string
+	tags []string
 
 	appenderPtr *unsafe.Pointer
 	callDepth int
 }
 
 // NewLog returns new log. Output Writer must be thread safe.
-func NewLog(appender Appender, prefix string) (res *Log) {
+func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	res = &Log{
+		tags: tags,
 		prefix: prefix,
 		appenderPtr: new(unsafe.Pointer),
 		callDepth: 2,
@@ -55,10 +57,10 @@ func NewLog(appender Appender, prefix string) (res *Log) {
 }
 
 // GetLog returns new independent log instance with given prefix.
-func (l *Log) GetLog(prefix string) (res *Log) {
+func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
 	res = NewLog(
 		(*(*Appender)(atomic.LoadPointer(l.appenderPtr))),
-		prefix)
+		prefix, tags...)
 	return
 }
 
@@ -70,6 +72,12 @@ func (l *Log) SetAppender(appender Appender) {
 // Prefix returns log prefix.
 func (l *Log) Prefix() (res string) {
 	res = string(l.prefix)
+	return
+}
+
+// Tags returns log tags.
+func (l *Log) Tags() (res []string) {
+	res = l.tags
 	return
 }
 
@@ -125,5 +133,5 @@ func (l *Log) Criticalf(format string, v ...interface{}) {
 
 func (l *Log) append(level, line string) {
 	(*(*Appender)(atomic.LoadPointer(l.appenderPtr))).Append(
-		level, l.prefix, line)
+		level, l.prefix, line, l.tags...)
 }
