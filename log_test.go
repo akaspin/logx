@@ -1,10 +1,10 @@
 package logx_test
 
 import (
-	"testing"
 	"bytes"
-	"github.com/tamtam-im/logx"
+	"github.com/akaspin/logx"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestLog_Info(t *testing.T) {
@@ -14,7 +14,6 @@ func TestLog_Info(t *testing.T) {
 	l.Infof("%s", "info format test")
 	assert.Equal(t, "INFO test\nINFO info format test\n", w.String())
 }
-
 
 func TestLog_Prefix(t *testing.T) {
 	w := &bytes.Buffer{}

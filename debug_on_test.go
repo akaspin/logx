@@ -3,10 +3,10 @@
 package logx_test
 
 import (
-	"testing"
 	"bytes"
-	"github.com/tamtam-im/logx"
+	"github.com/akaspin/logx"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestStandaloneLogger_Debug(t *testing.T) {

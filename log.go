@@ -1,27 +1,26 @@
 package logx
 
 import (
+	"fmt"
 	"sync/atomic"
 	"unsafe"
-	"fmt"
 )
 
-
 type Log struct {
-	prefix   string
-	tags []string
+	prefix string
+	tags   []string
 
 	appenderPtr *unsafe.Pointer
-	callDepth int
+	callDepth   int
 }
 
 // NewLog returns new log. Output Writer must be thread safe.
 func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	res = &Log{
-		tags: tags,
-		prefix: prefix,
+		tags:        tags,
+		prefix:      prefix,
 		appenderPtr: new(unsafe.Pointer),
-		callDepth: 2,
+		callDepth:   2,
 	}
 	res.SetAppender(appender)
 	return
@@ -30,7 +29,7 @@ func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 // GetLog returns new independent log instance with given prefix.
 func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
 	res = NewLog(
-		(*(*Appender)(atomic.LoadPointer(l.appenderPtr))),
+		*(*Appender)(atomic.LoadPointer(l.appenderPtr)),
 		prefix, tags...)
 	return
 }

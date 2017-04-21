@@ -2,16 +2,16 @@ package logx_test
 
 import (
 	"sync"
-	"testing"
 	"sync/atomic"
+	"testing"
 	"unsafe"
 )
 
-type outputMock struct {}
+type outputMock struct{}
 
-type atomicMock struct  {
+type atomicMock struct {
 	structVPtr *unsafe.Pointer
-	int32VPtr *int32
+	int32VPtr  *int32
 	stringVPtr *unsafe.Pointer
 }
 
@@ -24,8 +24,8 @@ func newAtomicMock() *atomicMock {
 }
 
 type lockerMock struct {
-	rwMu    *sync.RWMutex
-	mu *sync.Mutex
+	rwMu *sync.RWMutex
+	mu   *sync.Mutex
 
 	structV *outputMock
 	int32V  int32
