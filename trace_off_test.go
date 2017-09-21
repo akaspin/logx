@@ -1,4 +1,4 @@
-// +build debug trace
+// +build !trace
 
 package logx_test
 
@@ -9,9 +9,9 @@ import (
 	"testing"
 )
 
-func TestStandaloneLogger_Debug_On(t *testing.T) {
+func TestStandaloneLogger_Trace_Off(t *testing.T) {
 	w := &bytes.Buffer{}
 	l := logx.NewLog(logx.NewSimpleAppender(w, 0), "")
-	l.Debug("test")
-	assert.Equal(t, "DEBUG test\n", w.String())
+	l.Trace("test")
+	assert.Equal(t, "", w.String())
 }
