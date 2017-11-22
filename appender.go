@@ -1,6 +1,5 @@
 package logx
 
-
 type Appender interface {
 
 	// Append log line
