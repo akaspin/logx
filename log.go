@@ -2,15 +2,13 @@ package logx
 
 import (
 	"fmt"
-	"sync/atomic"
-	"unsafe"
 )
 
 type Log struct {
 	prefix string
 	tags   []string
 
-	appenderPtr *unsafe.Pointer
+	appender Appender
 	callDepth   int
 }
 
@@ -19,24 +17,16 @@ func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	res = &Log{
 		tags:        tags,
 		prefix:      prefix,
-		appenderPtr: new(unsafe.Pointer),
+		appender: appender,
 		callDepth:   2,
 	}
-	res.SetAppender(appender)
 	return
 }
 
 // GetLog returns new independent log instance with given prefix.
 func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
-	res = NewLog(
-		*(*Appender)(atomic.LoadPointer(l.appenderPtr)),
-		prefix, tags...)
+	res = NewLog(l.appender, prefix, tags...)
 	return
-}
-
-// SetAppender sets appender for Log instance.
-func (l *Log) SetAppender(appender Appender) {
-	atomic.StorePointer(l.appenderPtr, (unsafe.Pointer)(&appender))
 }
 
 // Prefix returns log prefix.
@@ -102,6 +92,5 @@ func (l *Log) Criticalf(format string, v ...interface{}) {
 }
 
 func (l *Log) appendLine(level, line string) {
-	(*(*Appender)(atomic.LoadPointer(l.appenderPtr))).Append(
-		level, l.prefix, line, l.tags...)
+	l.appender.Append(level, l.prefix, line, l.tags...)
 }
