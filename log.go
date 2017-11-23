@@ -12,7 +12,7 @@ type Log struct {
 	callDepth   int
 }
 
-// NewLog returns new log. Output Writer must be thread safe.
+// Create new log
 func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	res = &Log{
 		tags:        tags,
@@ -23,21 +23,33 @@ func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	return
 }
 
-// GetLog returns new independent log instance with given prefix.
+// New log with given prefix and tags.
 func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
 	res = NewLog(l.appender, prefix, tags...)
 	return
 }
 
-// Prefix returns log prefix.
+// Log prefix.
 func (l *Log) Prefix() (res string) {
 	res = string(l.prefix)
 	return
 }
 
-// Tags returns log tags.
+// Log tags.
 func (l *Log) Tags() (res []string) {
 	res = l.tags
+	return
+}
+
+// New Log instance with given appender
+func (l *Log) WithAppender(appender Appender) (res *Log) {
+	res = NewLog(appender, l.prefix, l.tags...)
+	return
+}
+
+// New log instance wit given tags
+func (l *Log) WithTags(tags ...string) (res *Log) {
+	res = NewLog(l.appender, l.prefix, tags...)
 	return
 }
 
