@@ -4,6 +4,13 @@ import (
 	"fmt"
 )
 
+const (
+	lInfo     = "INFO"
+	lWarning  = "WARNING"
+	lError    = "ERROR"
+	lCritical = "CRITICAL"
+)
+
 type Log struct {
 	prefix string
 	tags   []string

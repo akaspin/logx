@@ -8,19 +8,13 @@ import (
 )
 
 const (
-	lInfo     = "INFO"
-	lWarning  = "WARNING"
-	lError    = "ERROR"
-	lCritical = "CRITICAL"
-
 	// Ldate adds the date in the local time zone: 2009/01/23
 	Ldate = 1 << iota
 
 	// Ltime adds the time in the local time zone: 01:23:23
 	Ltime
 
-	// Lmicroseconds adds microsecond resolution: 01:23:23.123123.
-	// assumes LTime.
+	// Lmicroseconds adds microsecond resolution: 01:23:23.123123. Assumes LTime.
 	Lmicroseconds
 
 	// Llongfile adds full file name and line number: /a/b/c/d.go:23

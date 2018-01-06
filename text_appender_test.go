@@ -9,14 +9,14 @@ import (
 func BenchmarkBufferAppender_Append(b *testing.B) {
 	b.Run(`simple`, func(b *testing.B) {
 		output := &nopWriter{}
-		a := logx.NewSimpleAppender(output, 0)
+		a := logx.NewTextAppender(output, 0)
 		for i := 0; i < b.N; i++ {
 			a.Append("INFO", "test", strconv.Itoa(i))
 		}
 	})
 	b.Run(`buf`, func(b *testing.B) {
 		output := &nopWriter{}
-		a := logx.NewBufferAppender(output, 0)
+		a := logx.NewTextAppender(output, 0)
 		for i := 0; i < b.N; i++ {
 			a.Append("INFO", "test", strconv.Itoa(i))
 		}

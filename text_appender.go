@@ -10,14 +10,14 @@ import (
 )
 
 // Default Appender based on buffer pool
-type BufferAppender struct {
+type TextAppender struct {
 	output     io.Writer
 	flags      int
 	bufferPool sync.Pool
 }
 
-func NewBufferAppender(output io.Writer, flags int) (a *BufferAppender) {
-	a = &BufferAppender{
+func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
+	a = &TextAppender{
 		output: output,
 		flags:  flags,
 		bufferPool: sync.Pool{
@@ -29,7 +29,7 @@ func NewBufferAppender(output io.Writer, flags int) (a *BufferAppender) {
 	return
 }
 
-func (a *BufferAppender) Append(level, prefix, line string, tags ...string) {
+func (a *TextAppender) Append(level, prefix, line string, tags ...string) {
 	buf := a.bufferPool.Get().(*bytes.Buffer)
 
 	// time
