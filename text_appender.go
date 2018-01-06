@@ -9,6 +9,34 @@ import (
 	"unicode"
 )
 
+const (
+	// Ldate adds the date in the local time zone: 2009/01/23
+	Ldate = 1 << iota
+
+	// Ltime adds the time in the local time zone: 01:23:23
+	Ltime
+
+	// Lmicroseconds adds microsecond resolution: 01:23:23.123123. Assumes LTime.
+	Lmicroseconds
+
+	// Llongfile adds full file name and line number: /a/b/c/d.go:23
+	Llongfile
+
+	// Lshortfile adds final file name element and line number: d.go:23.
+	// overrides Llongfile
+	Lshortfile
+
+	// LUTC if Ldate or Ltime is set, use UTC rather than the local time zone
+	LUTC
+
+	// Lcompact removes whitespace from log lines
+	Lcompact
+
+	// LstdFlags initial values for the standard logger
+	LstdFlags = Lshortfile | Lcompact
+)
+
+
 // Default Appender based on buffer pool
 type TextAppender struct {
 	output     io.Writer
