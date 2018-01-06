@@ -8,17 +8,17 @@ type Log struct {
 	prefix string
 	tags   []string
 
-	appender Appender
-	callDepth   int
+	appender  Appender
+	callDepth int
 }
 
 // Create new log
 func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	res = &Log{
-		tags:        tags,
-		prefix:      prefix,
-		appender: appender,
-		callDepth:   2,
+		tags:      tags,
+		prefix:    prefix,
+		appender:  appender,
+		callDepth: 2,
 	}
 	return
 }
