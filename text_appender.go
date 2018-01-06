@@ -164,7 +164,7 @@ func itoaBuf(buf *bytes.Buffer, i int, wid int) {
 	}
 	// i < 10
 	b[bp] = byte('0' + i)
-	buf.Write(b[:])
+	buf.Write(b[bp:])
 }
 
 func stripBuf(buf *bytes.Buffer, src string) {

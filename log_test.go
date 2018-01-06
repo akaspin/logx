@@ -37,6 +37,7 @@ func TestLog_GetLog(t *testing.T) {
 	l.Warning("2")
 	l2 := l.GetLog("second")
 	l2.Info("test")
+	assert.Regexp(t, ` log_test.go:\d\d `, w.String())
 	assert.Contains(t, w.String(), "WARNING log_test.go:")
 	assert.Contains(t, w.String(), "INFO second log_test.go:")
 }
