@@ -21,43 +21,37 @@ type Log struct {
 
 // Create new log
 func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
-	res = &Log{
+	return &Log{
 		tags:      tags,
 		prefix:    prefix,
 		appender:  appender,
 		callDepth: 2,
 	}
-	return
 }
 
 // New log with given prefix and tags.
 func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
-	res = NewLog(l.appender, prefix, tags...)
-	return
+	return NewLog(l.appender, prefix, tags...)
 }
 
 // Log prefix.
 func (l *Log) Prefix() (res string) {
-	res = string(l.prefix)
-	return
+	return l.prefix
 }
 
 // Log tags.
 func (l *Log) Tags() (res []string) {
-	res = l.tags
-	return
+	return l.tags
 }
 
 // New Log instance with given appender
 func (l *Log) WithAppender(appender Appender) (res *Log) {
-	res = NewLog(appender, l.prefix, l.tags...)
-	return
+	return NewLog(appender, l.prefix, l.tags...)
 }
 
 // New log instance wit given tags
 func (l *Log) WithTags(tags ...string) (res *Log) {
-	res = NewLog(l.appender, l.prefix, tags...)
-	return
+	return NewLog(l.appender, l.prefix, tags...)
 }
 
 // Print is synonym to Info used for compatibility.
