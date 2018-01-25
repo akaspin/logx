@@ -61,7 +61,7 @@ func BenchmarkParamAllocations(b *testing.B) {
 type nopWriter struct{}
 
 func (*nopWriter) Write(p []byte) (n int, err error) {
-	return
+	return len(p), nil
 }
 
 func BenchmarkBufferPool(b *testing.B) {

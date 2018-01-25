@@ -36,7 +36,6 @@ const (
 	LstdFlags = Lshortfile | Lcompact
 )
 
-
 // Default Appender based on buffer pool
 type TextAppender struct {
 	output     io.Writer
@@ -45,7 +44,7 @@ type TextAppender struct {
 }
 
 func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
-	a = &TextAppender{
+	return &TextAppender{
 		output: output,
 		flags:  flags,
 		bufferPool: sync.Pool{
@@ -54,7 +53,6 @@ func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
 			},
 		},
 	}
-	return
 }
 
 func (a *TextAppender) Append(level, prefix, line string, tags ...string) {
