@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	lInfo     = "INFO"
+	lNotice   = "NOTICE"
 	lWarning  = "WARNING"
 	lError    = "ERROR"
 	lCritical = "CRITICAL"
@@ -54,24 +54,14 @@ func (l *Log) WithTags(tags ...string) (res *Log) {
 	return NewLog(l.appender, l.prefix, tags...)
 }
 
-// Print is synonym to Info used for compatibility.
-func (l *Log) Print(v ...interface{}) {
-	l.appendLine(lInfo, fmt.Sprint(v...))
+// Notice logs value with NOTICE severity level.
+func (l *Log) Notice(v ...interface{}) {
+	l.appendLine(lNotice, fmt.Sprint(v...))
 }
 
-// Printf is synonym to Infof used for compatibility.
-func (l *Log) Printf(format string, v ...interface{}) {
-	l.appendLine(lInfo, fmt.Sprintf(format, v...))
-}
-
-// Info logs value with INFO severity level.
-func (l *Log) Info(v ...interface{}) {
-	l.appendLine(lInfo, fmt.Sprint(v...))
-}
-
-// Infof logs formatted value with INFO severity level.
-func (l *Log) Infof(format string, v ...interface{}) {
-	l.appendLine(lInfo, fmt.Sprintf(format, v...))
+// Noticef logs formatted value with NOTICE severity level.
+func (l *Log) Noticef(format string, v ...interface{}) {
+	l.appendLine(lNotice, fmt.Sprintf(format, v...))
 }
 
 // Warning logs value with WARNING severity level.
