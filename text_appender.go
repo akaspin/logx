@@ -36,6 +36,12 @@ const (
 	LstdFlags = Lshortfile | Lcompact
 )
 
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return &bytes.Buffer{}
+	},
+}
+
 /*
 TextAppender is default for logx
 
@@ -47,7 +53,7 @@ type TextAppender struct {
 	output     io.Writer
 	flags      int
 
-	bufferPool sync.Pool
+	//bufferPool sync.Pool
 	identity []byte
 }
 
@@ -56,11 +62,11 @@ func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
 	a = &TextAppender{
 		output: output,
 		flags:  flags,
-		bufferPool: sync.Pool{
-			New: func() interface{} {
-				return &bytes.Buffer{}
-			},
-		},
+		//bufferPool: sync.Pool{
+		//	New: func() interface{} {
+		//		return &bytes.Buffer{}
+		//	},
+		//},
 		identity: []byte(" "),
 	}
 	return a
@@ -71,14 +77,14 @@ func (a *TextAppender) Clone(prefix string, tags []string) (a1 Appender) {
 	a1 = &TextAppender{
 		output: a.output,
 		flags: a.flags,
-		bufferPool: a.bufferPool,
+		//bufferPool: a.bufferPool,
 	}
 	a1.(*TextAppender).setIdentity(prefix, tags)
 	return a1
 }
 
 func (a *TextAppender) Append(level, line string) {
-	buf := a.bufferPool.Get().(*bytes.Buffer)
+	buf := bufferPool.Get().(*bytes.Buffer)
 
 	// time
 	if a.flags&(Ldate|Ltime|Lmicroseconds|LUTC) != 0 {
@@ -152,11 +158,11 @@ func (a *TextAppender) Append(level, line string) {
 	}
 	buf.WriteTo(a.output)
 	buf.Reset()
-	a.bufferPool.Put(buf)
+	bufferPool.Put(buf)
 }
 
 func (a *TextAppender) setIdentity(prefix string, tags []string) {
-	buf := a.bufferPool.Get().(*bytes.Buffer)
+	buf := bufferPool.Get().(*bytes.Buffer)
 	buf.WriteByte(' ')
 	if prefix != "" {
 		buf.WriteString(prefix)
@@ -176,7 +182,7 @@ func (a *TextAppender) setIdentity(prefix string, tags []string) {
 	a.identity = make([]byte, buf.Len())
 	copy(a.identity, buf.Bytes())
 	buf.Reset()
-	a.bufferPool.Put(buf)
+	bufferPool.Put(buf)
 }
 
 func itoaBuf(buf *bytes.Buffer, i int, wid int) {
