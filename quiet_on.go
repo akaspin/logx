@@ -3,13 +3,13 @@
 package logx
 
 // Print is synonym to Info used for compatibility with "log" package.
-func (l *Log) Print(v ...interface{}) {}
+func (*Log) Print(v ...interface{}) {}
 
 // Printf is synonym to Infof used for compatibility  "log" package.
-func (l *Log) Printf(format string, v ...interface{}) {}
+func (*Log) Printf(format string, v ...interface{}) {}
 
 // Info logs value with INFO severity level.
-func (l *Log) Info(v ...interface{}) {}
+func (*Log) Info(v ...interface{}) {}
 
 // Infof logs formatted value with INFO severity level.
-func (l *Log) Infof(format string, v ...interface{}) {}
+func (*Log) Infof(format string, v ...interface{}) {}

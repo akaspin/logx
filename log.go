@@ -16,7 +16,6 @@ type Log struct {
 	tags   []string
 
 	appender  Appender
-	callDepth int
 }
 
 // Create new log
@@ -24,14 +23,17 @@ func NewLog(appender Appender, prefix string, tags ...string) (res *Log) {
 	return &Log{
 		tags:      tags,
 		prefix:    prefix,
-		appender:  appender,
-		callDepth: 2,
+		appender:  appender.Clone(prefix, tags),
 	}
 }
 
-// New log with given prefix and tags.
+// NewTextAppender log with given prefix and tags.
 func (l *Log) GetLog(prefix string, tags ...string) (res *Log) {
-	return NewLog(l.appender, prefix, tags...)
+	return &Log{
+		prefix: prefix,
+		tags: tags,
+		appender: l.appender.Clone(prefix, tags),
+	}
 }
 
 // Log prefix.
@@ -44,56 +46,51 @@ func (l *Log) Tags() (res []string) {
 	return l.tags
 }
 
-// New Log instance with given appender
-func (l *Log) WithAppender(appender Appender) (res *Log) {
-	return NewLog(appender, l.prefix, l.tags...)
-}
-
-// New log instance wit given tags
+// NewTextAppender log instance wit given tags
 func (l *Log) WithTags(tags ...string) (res *Log) {
 	return NewLog(l.appender, l.prefix, tags...)
 }
 
 // Notice logs value with NOTICE severity level.
 func (l *Log) Notice(v ...interface{}) {
-	l.appendLine(lNotice, fmt.Sprint(v...))
+	l.appendLine1(lNotice, fmt.Sprint(v...))
 }
 
 // Noticef logs formatted value with NOTICE severity level.
 func (l *Log) Noticef(format string, v ...interface{}) {
-	l.appendLine(lNotice, fmt.Sprintf(format, v...))
+	l.appendLine1(lNotice, fmt.Sprintf(format, v...))
 }
 
 // Warning logs value with WARNING severity level.
 func (l *Log) Warning(v ...interface{}) {
-	l.appendLine(lWarning, fmt.Sprint(v...))
+	l.appendLine1(lWarning, fmt.Sprint(v...))
 }
 
 // Warningf logs formatted value with WARNING severity level.
 func (l *Log) Warningf(format string, v ...interface{}) {
-	l.appendLine(lWarning, fmt.Sprintf(format, v...))
+	l.appendLine1(lWarning, fmt.Sprintf(format, v...))
 }
 
 // Error logs value with ERROR severity level.
 func (l *Log) Error(v ...interface{}) {
-	l.appendLine(lError, fmt.Sprint(v...))
+	l.appendLine1(lError, fmt.Sprint(v...))
 }
 
 // Errorf logs formatted value with ERROR severity level.
 func (l *Log) Errorf(format string, v ...interface{}) {
-	l.appendLine(lError, fmt.Sprintf(format, v...))
+	l.appendLine1(lError, fmt.Sprintf(format, v...))
 }
 
 // Critical logs value with CRITICAL severity level.
 func (l *Log) Critical(v ...interface{}) {
-	l.appendLine(lCritical, fmt.Sprint(v...))
+	l.appendLine1(lCritical, fmt.Sprint(v...))
 }
 
 // Criticalf logs formatted value with CRITICAL severity level.
 func (l *Log) Criticalf(format string, v ...interface{}) {
-	l.appendLine(lCritical, fmt.Sprintf(format, v...))
+	l.appendLine1(lCritical, fmt.Sprintf(format, v...))
 }
 
-func (l *Log) appendLine(level, line string) {
-	l.appender.Append(level, l.prefix, line, l.tags...)
+func (l *Log) appendLine1(level, line string) {
+	l.appender.Append(level, line)
 }

@@ -36,15 +36,24 @@ const (
 	LstdFlags = Lshortfile | Lcompact
 )
 
-// Default Appender based on buffer pool
+/*
+TextAppender is default for logx
+
+Format:
+
+	time LEVEL prefix [tags] file:line message
+*/
 type TextAppender struct {
 	output     io.Writer
 	flags      int
+
 	bufferPool sync.Pool
+	identity []byte
 }
 
+// NewTextAppender returns new appender without prefix and tags
 func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
-	return &TextAppender{
+	a = &TextAppender{
 		output: output,
 		flags:  flags,
 		bufferPool: sync.Pool{
@@ -52,10 +61,23 @@ func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
 				return &bytes.Buffer{}
 			},
 		},
+		identity: []byte(" "),
 	}
+	return a
 }
 
-func (a *TextAppender) Append(level, prefix, line string, tags ...string) {
+// Clone returns copy of TextAppender with given prefix and tags
+func (a *TextAppender) Clone(prefix string, tags []string) (a1 Appender) {
+	a1 = &TextAppender{
+		output: a.output,
+		flags: a.flags,
+		bufferPool: a.bufferPool,
+	}
+	a1.(*TextAppender).setIdentity(prefix, tags)
+	return a1
+}
+
+func (a *TextAppender) Append(level, line string) {
 	buf := a.bufferPool.Get().(*bytes.Buffer)
 
 	// time
@@ -92,26 +114,9 @@ func (a *TextAppender) Append(level, prefix, line string, tags ...string) {
 
 	// level
 	buf.WriteString(level)
-	buf.WriteByte(' ')
 
-	// prefix
-	if prefix != "" {
-		buf.WriteString(prefix)
-		buf.WriteByte(' ')
-	}
-
-	// tags
-	ltags := len(tags)
-	if ltags != 0 {
-		buf.WriteByte('[')
-		for i, tag := range tags {
-			buf.WriteString(tag)
-			if i < ltags-1 {
-				buf.WriteByte(' ')
-			}
-		}
-		buf.WriteString("] ")
-	}
+	// identity
+	buf.Write(a.identity)
 
 	// file
 	if a.flags&(Lshortfile|Llongfile) != 0 {
@@ -146,6 +151,30 @@ func (a *TextAppender) Append(level, prefix, line string, tags ...string) {
 		buf.WriteByte('\n')
 	}
 	buf.WriteTo(a.output)
+	buf.Reset()
+	a.bufferPool.Put(buf)
+}
+
+func (a *TextAppender) setIdentity(prefix string, tags []string) {
+	buf := a.bufferPool.Get().(*bytes.Buffer)
+	buf.WriteByte(' ')
+	if prefix != "" {
+		buf.WriteString(prefix)
+		buf.WriteByte(' ')
+	}
+	if len(tags) > 0 {
+		buf.WriteByte('[')
+		for i, tag := range tags {
+			if i > 0 {
+				buf.WriteByte(' ')
+			}
+			buf.WriteString(tag)
+		}
+		buf.WriteByte(']')
+		buf.WriteByte(' ')
+	}
+	a.identity = make([]byte, buf.Len())
+	copy(a.identity, buf.Bytes())
 	buf.Reset()
 	a.bufferPool.Put(buf)
 }

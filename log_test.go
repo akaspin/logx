@@ -13,7 +13,8 @@ import (
 func checkLevels(t *testing.T, expect ...string) {
 	t.Helper()
 	var w bytes.Buffer
-	l1 := logx.NewLog(logx.NewTextAppender(&w, 0), "test")
+	app := logx.NewTextAppender(&w, 0)
+	l1 := logx.NewLog(app, "test")
 
 	in := "test"
 	l1.Trace(in)
