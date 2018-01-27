@@ -39,3 +39,10 @@ func checkLevels(t *testing.T, expect ...string) {
 	}
 	assert.Equal(t, res, w.String())
 }
+
+func TestLog_Lshortfile(t *testing.T) {
+	var buf bytes.Buffer
+	l := logx.NewLog(logx.NewTextAppender(&buf, logx.Lshortfile), "test")
+	l.Notice("lineno")
+	assert.Contains(t, buf.String(), "log_test.go:46")
+}

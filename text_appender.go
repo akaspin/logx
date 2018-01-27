@@ -34,6 +34,8 @@ const (
 
 	// LstdFlags initial values for the standard logger
 	LstdFlags = Lshortfile | Lcompact
+
+	lCallLevel = 2
 )
 
 var bufferPool = sync.Pool{
@@ -50,8 +52,8 @@ Format:
 	time LEVEL prefix [tags] file:line message
 */
 type TextAppender struct {
-	output     io.Writer
-	flags      int
+	output io.Writer
+	flags  int
 
 	//bufferPool sync.Pool
 	identity []byte
@@ -76,7 +78,7 @@ func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
 func (a *TextAppender) Clone(prefix string, tags []string) (a1 Appender) {
 	a1 = &TextAppender{
 		output: a.output,
-		flags: a.flags,
+		flags:  a.flags,
 		//bufferPool: a.bufferPool,
 	}
 	a1.(*TextAppender).setIdentity(prefix, tags)
@@ -126,7 +128,7 @@ func (a *TextAppender) Append(level, line string) {
 
 	// file
 	if a.flags&(Lshortfile|Llongfile) != 0 {
-		_, file, lineNo, ok := runtime.Caller(3)
+		_, file, lineNo, ok := runtime.Caller(lCallLevel)
 		if !ok {
 			file = "???"
 			lineNo = 0
