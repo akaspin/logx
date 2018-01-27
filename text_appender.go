@@ -55,7 +55,6 @@ type TextAppender struct {
 	output io.Writer
 	flags  int
 
-	//bufferPool sync.Pool
 	identity []byte
 }
 
@@ -64,11 +63,6 @@ func NewTextAppender(output io.Writer, flags int) (a *TextAppender) {
 	a = &TextAppender{
 		output: output,
 		flags:  flags,
-		//bufferPool: sync.Pool{
-		//	New: func() interface{} {
-		//		return &bytes.Buffer{}
-		//	},
-		//},
 		identity: []byte(" "),
 	}
 	return a
@@ -79,7 +73,6 @@ func (a *TextAppender) Clone(prefix string, tags []string) (a1 Appender) {
 	a1 = &TextAppender{
 		output: a.output,
 		flags:  a.flags,
-		//bufferPool: a.bufferPool,
 	}
 	a1.(*TextAppender).setIdentity(prefix, tags)
 	return a1
