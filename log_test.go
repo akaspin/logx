@@ -13,7 +13,8 @@ import (
 func checkLevels(t *testing.T, expect ...string) {
 	t.Helper()
 	var w bytes.Buffer
-	l1 := logx.NewLog(logx.NewTextAppender(&w, 0), "test")
+	app := logx.NewTextAppender(&w, 0)
+	l1 := logx.NewLog(app, "test")
 
 	in := "test"
 	l1.Trace(in)
@@ -37,4 +38,11 @@ func checkLevels(t *testing.T, expect ...string) {
 		res += fmt.Sprintf("%s test f:%s\n", level, in)
 	}
 	assert.Equal(t, res, w.String())
+}
+
+func TestLog_Lshortfile(t *testing.T) {
+	var buf bytes.Buffer
+	l := logx.NewLog(logx.NewTextAppender(&buf, logx.Lshortfile), "test")
+	l.Notice("lineno")
+	assert.Contains(t, buf.String(), "log_test.go:46")
 }
